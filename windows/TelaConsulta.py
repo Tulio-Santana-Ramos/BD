@@ -24,8 +24,12 @@ class TelaConsulta:
             elif event == 'Executar':
                 try:
                     self.cursor.execute(values['Query SQL'])
-                    for row in self.cursor:
-                        print(row)
+                    result = self.cursor.fechall()
+                    columns = [desc[0] for desc in self.cursor.description]
+                    for row in result:
+                        #print(row)
+                        print(zip(columns, row))
+                        #print(dict(zip(columns, row)))
                 except:
                     print('Houve um problema na execução de sua query, tente verificá-la novamente')
             elif event == 'Commit':

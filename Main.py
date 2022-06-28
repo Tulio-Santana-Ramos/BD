@@ -6,3 +6,5 @@ def main():
     sql = Inicio.start()
     commands = TelaConsulta.TelaConsulta(sql)
     commands.start()
+
+main()
