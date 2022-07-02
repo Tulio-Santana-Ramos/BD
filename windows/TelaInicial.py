@@ -13,17 +13,17 @@ class TelaInicial:
                     ]
         self.window = sg.Window('Webook', self.layout, margins = (25, 30), finalize = True, font = 'arial 12')
 
-    def start(self):
+    def startInicial(self):
         while True:
             event, values = self.window.read()
             if event == sg.WIN_CLOSED or event == 'Sair da Aplicação':
                 self.window.close()
+                return -1
                 break
             elif event == 'Login':
                 try:
                     connection = sql.connect(database = 'webook', user = str(values[0]), password = str(values[1]), host = "localhost")
                     self.window.Close()
                     return connection
-                except:
-                    sg.popup('Houve um erro durante seu login, tente novamente')
-                    return 0
+                except sg.OptionalError as e:
+                    sg.popup('Ocorreu um erro!\n\n{0}').format(e)

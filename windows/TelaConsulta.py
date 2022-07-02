@@ -13,10 +13,7 @@ class TelaConsulta:
         self.cursor = self.connection.cursor()
         self.window = sg.Window('Webook', self.layout, margins = (25, 30), finalize = True, font = 'arial 12')
 
-    def show_results(self):
-        return
-
-    def start(self):
+    def startConsulta(self):
         while True:
             event, values = self.window.read()
             if event == sg.WIN_CLOSED or event == 'Encerrar Operações':
@@ -31,8 +28,7 @@ class TelaConsulta:
                     if(str(values[0]).lower().find('select') != -1):
                         result = self.cursor.fetchall()
                         for row in result:
-                            print(str(row))
-                            #print(dict(zip(columns, row)))
+                            print(str(row))             
                 except:
                     sg.popup('Houve um problema na execução de sua query, tente verificá-la novamente')
             elif event == 'Commit':
