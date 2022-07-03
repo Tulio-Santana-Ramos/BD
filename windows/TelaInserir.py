@@ -6,7 +6,7 @@ class TelaInserir():
 
     def __init__(self, con): # Construtor -> Declaração dos componentes da Tela e montagem de layout
         sg.theme('Dark Amber')
-        self.layout = [[sg.Text("Para realizar uma inserção de Livro, precisa-se das seguintes informações:\n\n")],
+        self.layout = [[sg.Text("Para realizar uma inserção de Livro, precisa-se das seguintes informações:\nPor favor crie um novos Autor e Editora, além do Livro\n")],
                         [sg.Text('Nome-Livro', size = (12, 1)), sg.InputText(key = 'NL')], [sg.Text('Edição', size = (12, 1)), sg.InputText(key = 'LE')],
                         [sg.Text('Ano Publicação', size = (12, 1)), sg.InputText(key = 'LA')], [sg.Text('Sinopse', size = (12, 1)), sg.InputText(key = 'S')],
                         [sg.Text('Avaliação Livro', size = (12, 1)), sg.InputText(key = 'AML')], [sg.Text('Faixa Etária', size = (12, 1)), sg.InputText(key = 'FE')],

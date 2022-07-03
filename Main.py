@@ -2,7 +2,6 @@ import windows.TelaInicial as TelaInicial
 import windows.TelaMenu as TelaMenu
 import windows.TelaInserir as TelaInserir
 import windows.TelaConsulta as TelaConsulta
-import psycopg2 as sql
 
 def main():
     screen = 0  # Seleção de qual tela deve ser utilizada
