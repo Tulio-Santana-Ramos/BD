@@ -1,3 +1,10 @@
+"""
+Eduardo Henrique Porto Silva - 11796656
+Israel Felipe da Silva - 11796531
+Tulio Santana Ramos - 11795526
+São Carlos
+2022
+"""
 import PySimpleGUI as sg
 import psycopg2 as sql
 import re
@@ -82,7 +89,24 @@ class TelaConsulta:
                     try:    # Executar o determinado comando, passar suas colunas por parâmetro e exibir tabela de resultados
                         self.cursor.execute(commands[query[0] - 1])
                         poluted = str(self.cursor.fetchall())
-                        cleaned = re.sub('['+string.punctuation+']', '', poluted).split()   # Limpeza da string resultante e divisão das colunas específicas
+                        print(poluted)
+
+                        poluted = poluted.split("), (")
+
+                        poluted[0] = poluted[0][2:len(poluted[0])]
+
+                        poluted[len(poluted)-1] = poluted[len(poluted)-1][0:len(poluted[len(poluted)-1])-2]
+                        cleaned = []
+
+                        for line in poluted:
+                            cleaned.append(line.split(","))
+                        #for x in range(len(cleaned)):
+                        #    cleaned[x] = cleaned[x][1:len(cleaned[x])-1]
+                        #cleaned = re.sub('['+string.punctuation+']', '', poluted).split()   # Limpeza da string resultante e divisão das colunas específicas
+                        #final = []
+                        #for x in range(0,round(len(cleaned)/3)):
+                        #    final.append( [cleaned[(3*x)] ,cleaned[(3*x+1)], cleaned[(3*x+2)]])
+                        #print(final)
                         self.show_results(columns[query[0] - 1], cleaned, str(event))   # Chamada da tela de resultados
                     except sql.Error as e:
                         sg.popup('Ocorreu um erro!\n{0}'.format(e)) # Em caso de erro, um pop-up indicará oque ocorreu

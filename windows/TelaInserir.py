@@ -1,3 +1,10 @@
+"""
+Eduardo Henrique Porto Silva - 11796656
+Israel Felipe da Silva - 11796531
+Tulio Santana Ramos - 11795526
+São Carlos
+2022
+"""
 import PySimpleGUI as sg
 import psycopg2 as sql
 
@@ -156,8 +163,7 @@ class TelaInserir():
                             i = 'NULL'
                     tipos = self.bookType()
                     commands = [    # Este comando visa a inserção de um novo usuário. Isto é necessário visto que também estamos criando uma Editora
-                        "INSERT INTO USUARIO (username, tipo, email, telefone) VALUES ('{}', '{}','{}','{}')"
-                        .format(values['NE'], 0, values['EE'], values['TE']),
+                        "INSERT INTO USUARIO (username, tipo, email, telefone) VALUES ('{}', '{}','{}','{}')".format(values['NE'], 0, values['EE'], values['TE']),
                         # Este, por sua vez, possibilita a criação da Editora, possível uma vez vez que o usuário base foi devidamente criado
                         "INSERT INTO EDITORA (usuario, qtdLivrosPublicados, avaliacaoMedia, cnpj, status) VALUES ('{}', '{}', '{}', '{}', '{}')".format(values['NE'], values['QLP'], values['AME'], values['CNPJ'], 1),
                         # Agora, criaremos o Autor associado à confecção deste Livro
@@ -173,17 +179,18 @@ class TelaInserir():
                             if(event == 'Commit'):
                                 self.connection.commit()
                                 operation = True
-                        if(len(tipos) == 1):    # Para caso de ebook
+                        if(len(tipos) == 0):    # Para caso de ebook
+                            print(tipos[0], type(tipos[0]))
                             self.cursor.execute("INSERT INTO EBOOK (livro, numPaginas) VALUES ('{}', '{}')".format(values['NE'], tipos[0]))
                             if(event == 'Commit'):
                                 self.connection.commit()
                                 operation = True
-                        elif(len(tipos) == 2):  # Para caso de audio book
+                        elif(len(tipos) == 1):  # Para caso de audio book
                             self.cursor.execute("INSERT INTO AUDIOBOOK (livro, duracao, dublador) VALUES ('{}', '{}', '{}')".format(values['NE'], tipos[0], tipos[1]))
                             if(event == 'Commit'):
                                 self.connection.commit()
                                 operation = True
-                        elif(len(tipos) == 3):  # Para caso de ambos
+                        elif(len(tipos) == 2):  # Para caso de ambos
                             self.cursor.execute("INSERT INTO EBOOK (livro, numPaginas) VALUES ('{}', '{}')".format(values['NE'], tipos[0]))
                             if(event == 'Commit'):
                                 self.connection.commit()

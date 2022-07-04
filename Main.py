@@ -1,3 +1,11 @@
+"""
+Eduardo Henrique Porto Silva - 11796656
+Israel Felipe da Silva - 11796531
+Tulio Santana Ramos - 11795526
+São Carlos
+2022
+"""
+
 import windows.TelaInicial as TelaInicial
 import windows.TelaMenu as TelaMenu
 import windows.TelaInserir as TelaInserir
