@@ -7,8 +7,6 @@ São Carlos
 """
 import PySimpleGUI as sg
 import psycopg2 as sql
-import re
-import string
 
 class TelaConsulta:
 
@@ -100,13 +98,6 @@ class TelaConsulta:
 
                         for line in poluted:
                             cleaned.append(line.split(","))
-                        #for x in range(len(cleaned)):
-                        #    cleaned[x] = cleaned[x][1:len(cleaned[x])-1]
-                        #cleaned = re.sub('['+string.punctuation+']', '', poluted).split()   # Limpeza da string resultante e divisão das colunas específicas
-                        #final = []
-                        #for x in range(0,round(len(cleaned)/3)):
-                        #    final.append( [cleaned[(3*x)] ,cleaned[(3*x+1)], cleaned[(3*x+2)]])
-                        #print(final)
                         self.show_results(columns[query[0] - 1], cleaned, str(event))   # Chamada da tela de resultados
                     except sql.Error as e:
                         sg.popup('Ocorreu um erro!\n{0}'.format(e)) # Em caso de erro, um pop-up indicará oque ocorreu
