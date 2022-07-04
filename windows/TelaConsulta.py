@@ -8,36 +8,55 @@ class TelaConsulta:
     def __init__(self, con): # Construtor -> Declaração dos componentes da Tela e montagem de layout
         sg.theme('Dark Amber')
         self.layout = [[sg.Text("Abaixo, pode-se selecionar qual consulta se deseja efetuar no banco de dados.\n\n")],
-                        [sg.Button('Consulta 1'), sg.Button('Consulta 2'), sg.Button('Consulta 3'), sg.Button('Menu')] ]
+                        [sg.Text("Em Consulta 1, insira uma string para obter o nome, username e quantidade de livros comprados da série inserida.\nEm Consulta 2, insira um número (ano) para obter o nome e username de usuários que compraram coleções do período inserido até o dado mais recente.\n")],
+                        [sg.Text("Para a Consulta 3, insira o nome de um autor para obter todos os livros em que está associado\n")],
+                        [sg.Text('Livro Consulta 1:', size = (15, 1)), sg.InputText(key = 'C1')], [sg.Text('Ano Consulta 2:', size = (15, 1)), sg.InputText(key = 'C2')], 
+                        [sg.Text('Autor Consulta 3:', size = (15, 1)), sg.InputText(key = 'C3')], [sg.Button('Consulta 1'), sg.Button('Consulta 2'), sg.Button('Consulta 3'), sg.Button('Menu')] ]
         self.connection = con
         self.cursor = self.connection.cursor()
         self.window = sg.Window('Webook', self.layout, margins = (25, 30), finalize = True, font = 'arial 12')
+        self.num = 0
 
     def show_results(self, columns, data, title):   # Setup de nova janela, em formato de tabela, para representar as informações das consultas
-        layout = [sg.Table(values = data, headings = columns, max_col_width = 30, key = 'RESULT', row_height = 35,
-                justification = 'right', auto_size_columns = True, display_row_numbers = True, tooltip = 'Resultado de sua consulta')]
+        layout = [[sg.Table(values = data, headings = columns, max_col_width = 30, key = 'RESULT', row_height = 35,
+                justification = 'right', auto_size_columns = True, display_row_numbers = True, tooltip = 'Resultado de sua consulta')],
+                [sg.Button('Fechar')]]
         res_window = sg.Window(title, layout, modal = True)
 
         while True:
-            event = res_window.read()
-            if event == sg.WIN_CLOSED:
+            event, values = res_window.read()
+            if event == sg.WIN_CLOSED or event == 'Fechar':
                 break
         res_window.close()
 
-    def startInserir(self):    # Execução da Tela
-        commands = [# Este comando visa a inserção de um novo usuário. Isto é necessário visto que também estamos criando uma Editora
-                    'INSERT INTO USUARIO (username, tipo, email, telefone) VALUES ({},1,{},{})'.format(values['NE'], values['EE'], values['TE']),
-                    # Este, por sua vez, possibilita a criação da Editora, possível uma vez vez que o usuário base foi devidamente criado
-                    'INSERT INTO EDITORA (usuario, qtdLivrosPublicados, avaliacaoMedia, cnpj, status) VALUES ({}, {}, {}, {}, {})'.format(values['NE'], values['QLP'], values['AME'], values['CNPJ'], int(self.status)),
-                    # Agora, criaremos o Autor associado à confecção deste Livro
-                    'INSERT INTO AUTOR (cpf, nome, qtLivrosPublicados, email, telefone) VALUES ({}, {}, {}, {}, {})'.format(values['CPFA'], values['NA'], values['QLA'], values['EA'], values['TA']),
-                    # Então, criaremos o Livro com as informações passadas no formulário
-                    'INSERT INTO LIVRO (nome, edicao, anoPublicacao, sinopse, avaliacaoMedia, faixaEtaria, preco) VALUES ({}, {}, {}, {}, {}, {}, {})'.format(values['NL'], values['LE'], values['LA'], values['S'], values['AML'], values['FE'], values['LP']),
-                    # Por fim, associaremos todas as entidades com uma nova entrada na tabela de Publica
-                    'INSERT INTO PUBLICA (livro, autor, editora) VALUES ({}, {}, {})'.format(values['NL'], values['CPFA'], values['NE'])
-                ]
+    def validation(self, c, values):    # Verificação dos campos
+        invalidos = []
+        if c == 1:  # Para caso Consulta 1
+            if(len(values['C1']) == 0):
+                invalidos.append('Para fazer a Consulta 1, insira um nome de livro/série no campo determinado')
+        elif c == 2:    # Para caso Consulta 2
+            if len(values['C2']) != 4:
+                invalidos.append('Para fazer a Consulta 2, insira um valor no campo determinado')
+            elif len(values['C2']) == 4:
+                x = [int(i) for i in values['C2'] if i.isdigit()]
+                if len(x) == 0 or (x[0] <= 0000 or x[0] >= 2022):
+                    invalidos.append('Ano da Consulta 2 deve ser maior que 0000 e menor que 2022')
+                else:
+                    self.num = x[0]
+        elif c == 3:    # Para caso Consulta 3
+            if(len(values['C3']) == 0):
+                invalidos.append('Para fazer a Consulta 3, insira um nome de autor no campo determinado')
+            else:
+                nums = [int(x) for x in values['C3'].split() if x.isdigit()]
+                if len(nums) != 0:
+                    invalidos.append('Para fazer a Consulta 3, insira um nome de autor válido no campo determinado')
+            
+        return invalidos    # Retorno da lista de erros encontrados
+
+    def startConsulta(self):    # Execução da Tela
+        
         columns = [ # Conjunto de atributos retornados nas consultas 1, 2 e 3, respectivamente
-            ['conjunto de colunas query 1'], ['conjunto de colunas query 2'], ['conjunto de colunas query 3']
+            ['username', 'nome', 'quantidade'], ['username', 'nome', 'quantidade'], ['nome Livro', 'edição', 'avaliação média']
             ]
 
         while True:
@@ -46,11 +65,29 @@ class TelaConsulta:
                 self.window.close()
                 return 1    # Retorno indicando para voltar à Tela de Menu
             elif event == 'Consulta 1' or event == 'Consulta 2' or event == 'Consulta 3':   # Em caso de alguma consulta ser selecionada
+
                 query = [int(x) for x in event.split() if x.isdigit()]  # Obter dígito da consulta selecionada
-                try:    # Executar o determinado comando, passar suas colunas por parâmetro e exibir tabela de resultados
-                    self.cursor.execute(commands[query[0] - 1])
-                    poluted = str(self.cursor.fetchall())
-                    cleaned = re.sub('['+string.punctuation+']', '', poluted).split()   # Limpeza da string resultante e divisão das colunas específicas
-                    self.show_results(columns[query[0] - 1], cleaned, str(event))
-                except sql.Error as e:
-                    sg.popup('Ocorreu um erro!\n{0}'.format(e)) # Em caso de erro, um pop-up indicará oque ocorreu
+                invalidos = self.validation(query[0], values)   # Verificar se campo selecionado está válido
+
+                if(len(invalidos) == 0):    # Em caso de nenhum erro
+                    # Lista de comandos
+                    commands = [# Este comando visa a busca de username, nome e contagem do total de livros, de determinada série inserida, comprados. Ordenação do usuário que mais comprou para o menor
+                        "SELECT CL.usuario, CL.nome, COUNT(*) AS \"QUANTIDADE\" FROM CLIENTE CL JOIN ( SELECT C.cliente, C.datahora FROM COMPRA C JOIN POSSUI P ON C.cliente = P.cliente AND C.datahora = P.datahora WHERE UPPER(livro) LIKE ('%{}%') ) AS R ON CL.usuario = R.cliente GROUP BY CL.usuario, CL.nome ORDER BY COUNT(*) DESC".format(values['C1'].upper()),
+                        # Este, por sua vez, visa usernames, nomes e contagem do total de coleções compradas por usuários. Sendo considerado apenas o período inserido pelo usuário
+                        "SELECT CL.usuario, CL.nome, COUNT(*) FROM CLIENTE CL JOIN (SELECT C.cliente, C.datahora FROM COMPRA C JOIN (SELECT * FROM DETEM WHERE EXTRACT(YEAR FROM datahoraCompra) >= {}) AS DT ON DT.cliente = C.cliente AND C.datahora = DT.datahoraCompra ) AS R ON R.CLIENTE = CL.USUARIO GROUP BY CL.usuario, CL.nome ORDER BY COUNT(*) DESC".format(self.num),
+                        # Por fim, buscar todos os nomes de livros, suas edições e avaliação média associados a determinado autor(a) inserido
+                        "SELECT L.nome, L.edicao, L.avaliacaoMedia FROM LIVRO L JOIN PUBLICA P on L.nome = P.livro JOIN AUTOR A on P.autor = A.cpf WHERE UPPER(A.nome) = '{}'".format(values['C3'].upper())
+                    ]
+
+                    try:    # Executar o determinado comando, passar suas colunas por parâmetro e exibir tabela de resultados
+                        self.cursor.execute(commands[query[0] - 1])
+                        poluted = str(self.cursor.fetchall())
+                        cleaned = re.sub('['+string.punctuation+']', '', poluted).split()   # Limpeza da string resultante e divisão das colunas específicas
+                        self.show_results(columns[query[0] - 1], cleaned, str(event))   # Chamada da tela de resultados
+                    except sql.Error as e:
+                        sg.popup('Ocorreu um erro!\n{0}'.format(e)) # Em caso de erro, um pop-up indicará oque ocorreu
+                else:
+                    errors = ''
+                    for strs in invalidos:       # Impressão de todos os erros do formulário
+                        errors += strs + '\n'
+                    sg.popup(errors)

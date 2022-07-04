@@ -12,7 +12,7 @@ class TelaMenu:
 
     def startMenu(self):    # Execução da Tela
         while True:
-            event = self.window.read()  # Constantemente analisar os vlaores da tela e mostrá-la
+            event, values = self.window.read()  # Constantemente analisar os valores da tela e mostrá-la
             if event == sg.WIN_CLOSED or event == 'Encerrar Sessão':    # Caso feche
                 self.window.close()
                 return 0  # Retorno indicando para voltar à Tela de Login

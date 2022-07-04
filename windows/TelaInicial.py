@@ -21,8 +21,8 @@ class TelaInicial:
                 return -1   # Retorno indicando saída total da aplicação
             elif event == 'Login':  # Caso tente logar
                 try:    # Conexão com a Base de Dados -> Para testes, altere o nome de 'database' para o nome de sua database
-                    connection = sql.connect(database = 'webook', user = str(values[0]), password = str(values[1]), host = "localhost")
-                    self.window.Close()
+                    connection = sql.connect(database = 'projeto', user = str(values[0]), password = str(values[1]), host = "localhost")
+                    self.window.close()
                     return connection   # Uma vez conectado, retorna-se o objeto connection e fecha-se a tela
                 except sql.Error as e:
                     sg.popup('Ocorreu um erro!\n{0}'.format(e)) # Em caso de erro, um pop-up indicará oque ocorreu
